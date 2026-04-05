@@ -7,7 +7,17 @@ import { logger } from '@/lib/logger'
 
 export const dynamic = 'force-dynamic'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
+// Lazy initialization to avoid build-time crash when env var is missing
+let _stripe: Stripe | null = null
+function getStripe(): Stripe {
+  if (!_stripe) {
+    if (!process.env.STRIPE_SECRET_KEY) {
+      throw new Error('STRIPE_SECRET_KEY is not configured')
+    }
+    _stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
+  }
+  return _stripe
+}
 
 export async function POST(req: NextRequest) {
   const sig = req.headers.get('stripe-signature')
@@ -20,7 +30,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const payload = await req.text()
-    event = stripe.webhooks.constructEvent(
+    event = getStripe().webhooks.constructEvent(
       payload,
       sig,
       process.env.STRIPE_WEBHOOK_SECRET!
