@@ -1,0 +1,474 @@
+@import "tailwindcss";
+
+/* ══════════════════════════════════════════════════════════════════
+   THERALGO — MindMarket Clone CSS
+   Tokens extraits directement du CSS MindMarket (156 965 chars)
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── Design Tokens (MindMarket exact) ────────────────────── */
+:root {
+  /* Colors */
+  --gn: #8ED462;
+  --g:  #72C15F;
+  --charcoal: #2C2E2A;
+  --beige: #F5F1E4;
+  --beige-500: #E0DBCE;
+  --red: #FF705D;
+  --yellow: #F5E211;
+  --blue: #2BA0FF;
+  --pink: #EBC1FF;
+  --white: #fff;
+
+  /* MindMarket spacing */
+  --spacing: .25rem;
+  --unit-md: 20px;
+
+  /* MindMarket radii */
+  --radius-sm: 10px;
+  --radius-md: 20px;
+  --radius-lg: 50px;
+
+  /* MindMarket menu */
+  --menu-bar-height: calc(var(--spacing) * 15); /* 60px mobile */
+
+  /* MindMarket easing */
+  --ease-bounce: cubic-bezier(.17,.67,.3,1.33);
+  --ease-smooth: cubic-bezier(.38,.005,.215,1);
+  --ease: cubic-bezier(.5,0,0,1);
+
+  /* MindMarket transitions */
+  --td: .4s;
+  --td-fast: .2s;
+  --td-slow: .6s;
+
+  /* Font */
+  --f: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+
+  /* MindMarket text sizes */
+  --text-md: clamp(1rem, .9783rem + .1087vw, 1.0625rem);
+  --text-lg: clamp(1.1563rem, 1.1454rem + .0543vw, 1.1875rem);
+  --text-heading-2xl: clamp(3.625rem, 1.1033rem + 12.6087vw, 10.875rem);
+  --text-heading-xl:  clamp(3.4375rem, 2.0245rem + 7.0652vw, 7.5rem);
+  --text-heading-lg:  clamp(2.75rem, 2.0543rem + 3.4783vw, 4.75rem);
+  --text-heading-md:  clamp(2.125rem, 1.7772rem + 1.7391vw, 3.125rem);
+  --text-heading-sm:  clamp(1.625rem, 1.3641rem + 1.3043vw, 2.375rem);
+  --text-heading-xs:  clamp(1.5rem, 1.413rem + .4348vw, 1.75rem);
+
+  /* MindMarket breakpoints */
+  --bp-sm: 700px;
+  --bp-md: 1000px;
+}
+
+/* ── Breakpoint tokens (override at md) */
+@media (min-width: 1000px) {
+  :root {
+    --menu-bar-height: calc(var(--spacing) * 16); /* 64px desktop */
+  }
+}
+
+/* ── Reset ────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0 }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100% }
+body {
+  font-family: var(--f);
+  background: var(--g);
+  color: var(--charcoal);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+:focus-visible { outline: 2px solid var(--gn); outline-offset: 3px; border-radius: 4px }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important }
+}
+
+/* ── Scrollbar ────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px }
+::-webkit-scrollbar-track { background: var(--g) }
+::-webkit-scrollbar-thumb { background: #4A9E3F; border-radius: 4px }
+
+/* ══════════════════════════════════════════════════════════
+   NAV DESKTOP — c-menu-desktop
+   ══════════════════════════════════════════════════════════ */
+.mm-nav-desktop {
+  display: none !important;
+}
+@media (min-width: 1000px) {
+  .mm-nav-desktop {
+    display: flex !important;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   NAV MOBILE — c-menu-mobile
+   visible < 1000px
+   ══════════════════════════════════════════════════════════ */
+.mm-nav-mobile {
+  display: block;
+}
+@media (min-width: 1000px) {
+  .mm-nav-mobile {
+    display: none !important;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   HERO — c-hero-home exact
+   Mobile font: 12.5vw
+   sm font: 10.5vw
+   Desktop font: 9.7vw
+   tagline: --text-heading-xs = clamp(1.5rem, ..., 1.75rem)
+   padding-bottom mobile: réduit (pas de persos hero dans notre impl.)
+   ══════════════════════════════════════════════════════════ */
+.mm-hero-title {
+  font-size: 12.5vw;
+  font-weight: 500;
+  letter-spacing: -.06em;
+  line-height: .95;
+}
+@media (min-width: 700px) {
+  .mm-hero-title { font-size: 10.5vw; }
+}
+@media (min-width: 1000px) {
+  .mm-hero-title { font-size: 9.7vw; }
+}
+
+.mm-hero-tagline {
+  font-size: var(--text-heading-xs);
+  font-weight: 500;
+  letter-spacing: -.06em;
+  line-height: 1.2;
+}
+
+/* ══════════════════════════════════════════════
+   INTRO — c-homepage-timeline_intro
+   Mobile: canvas 100% width, block layout, texte dessous
+   Desktop: flex row, canvas 55% gauche (sticky), texte droite
+   ══════════════════════════════════════════════ */
+.mm-intro {
+  display: block; /* mobile = colonne normale (pas flexbox) */
+  position: relative;
+  overflow: hidden; /* coupe les débordements de la canvas */
+  padding-top: clamp(2rem, 6.25vw, 5rem);
+}
+
+/* Canvas — mobile: 100% width, transition douce vers timeline */
+.mm-intro-canvas {
+  width: 100%;
+  position: relative;
+  z-index: 2;
+  margin-bottom: 2rem; /* espace propre avant le texte sur mobile */
+}
+
+/* Texte — mobile: padding horizontal safe, pas de superposition */
+.mm-intro-text {
+  padding: 0 clamp(1.25rem, 6.25vw, 5rem) clamp(2rem, 4vw, 4rem);
+  position: relative;
+  z-index: 3;
+}
+
+/* Desktop: deux colonnes côte à côte */
+@media (min-width: 1000px) {
+  .mm-intro {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 2vw;
+    padding: clamp(2rem, 6.25vw, 5rem) clamp(1.25rem, 6.25vw, 5rem) 0;
+    overflow: visible;
+  }
+  .mm-intro-canvas {
+    flex: 0 0 55%;
+    margin-bottom: -4.75vw; /* MindMarket exact: overlap avec la timeline */
+  }
+  .mm-intro-text {
+    flex: 1;
+    padding: 8vw 0 0;
+    position: sticky;
+    top: calc(var(--menu-bar-height) + 2rem);
+    min-height: 0;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   TIMELINE PATH — c-homepage-timeline_path EXACT
+   position: relative (OBLIGATOIRE pour les absolute children)
+   overflow: hidden (évite scroll horizontal des chars débordants)
+   margin: -2vw (extend SVG path beyond container)
+   Mobile: margin-bottom: -86vw (overlap avec section suivante)
+   Desktop (≥700px): margin-bottom: -10vw
+   ══════════════════════════════════════════════════════════ */
+.mm-path {
+  margin-left: -2vw;
+  margin-right: -2vw;
+  display: block;
+  position: relative;
+  overflow: hidden; /* BUG FIX: coupe les chars/SVG qui débordent → stop horizontal scroll */
+  /* Mobile: negative margin → overlap avec la section suivante */
+  margin-bottom: -86vw;
+}
+@media (min-width: 700px) {
+  .mm-path {
+    margin-bottom: -10vw;
+    overflow: visible; /* Desktop: laisser les chars déborder légèrement (visuellement voulu) */
+  }
+}
+@media (min-width: 1000px) {
+  .mm-path {
+    overflow: visible;
+  }
+}
+
+/* ── Desktop SVG: position absolute, fills container via aspect-ratio ── */
+.mm-svg-desktop {
+  display: none; /* hidden mobile */
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+@media (min-width: 1000px) {
+  .mm-svg-desktop {
+    display: block;
+  }
+  /* Container gets height from desktop aspect-ratio */
+  .mm-path {
+    aspect-ratio: 1944.2/6151.5;
+  }
+}
+
+/* ── Mobile SVG: in-flow, gives height via aspect-ratio ──
+   Clone EXACT: mr-[-64%] ml-[-50%] max-md:block max-md:aspect-[847/4471]
+   sm override: mr-[-54%] ml-[-45%]
+   NOTE: width:auto + negative margins = SVG wider than parent (gives height to container)
+   overflow:hidden on mm-path contains the visual overflow */
+.mm-svg-mobile {
+  display: block;
+  margin-left: -50%;
+  margin-right: -64%;
+  aspect-ratio: 847/4471;
+  width: auto; /* computed: parent_w + |ml| + |mr| via CSS block layout */
+  max-width: none; /* allow wider than parent */
+}
+@media (min-width: 700px) {
+  .mm-svg-mobile {
+    margin-left: -45%;
+    margin-right: -54%;
+  }
+}
+@media (min-width: 1000px) {
+  .mm-svg-mobile {
+    display: none;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   TILES — c-homepage-timeline-cards EXACT
+   position: absolute dans mm-path
+   Mobile: left/right = var(--unit-md) = 20px, width: auto
+   Desktop: positions en % (grid 16 colonnes → approx en vw)
+   ══════════════════════════════════════════════════════════ */
+.mm-card {
+  position: absolute;
+  z-index: 3;
+  /* Mobile */
+  left: var(--unit-md);
+  right: var(--unit-md);
+}
+/* Mobile tops — MindMarket exact */
+.mm-card-1 { top: 9%; }
+.mm-card-2 { top: 22%; }
+.mm-card-3 { top: 45.5%; }
+.mm-card-4 { top: 70%; }
+
+/* Desktop positions */
+@media (min-width: 1000px) {
+  .mm-card {
+    left: auto;
+    right: auto;
+    width: min(38vw, 520px);
+  }
+  /* Tile 1: right, top 11% — mirrored (MindMarket: right col) */
+  .mm-card-1 { top: 11%;   right: min(6.25vw, 80px); }
+  /* Tile 2: left, top 25.5% */
+  .mm-card-2 { top: 25.5%; left:  min(6.25vw, 80px); }
+  /* Tile 3: left, top 44%, slightly wider */
+  .mm-card-3 { top: 44%;   left:  min(6.25vw, 80px); width: min(43vw, 570px); }
+  /* Tile 4: right, top 70% */
+  .mm-card-4 { top: 70%;   right: min(6.25vw, 80px); }
+}
+
+/* ══════════════════════════════════════════════════════════
+   RIVE CHARS — positions EXACTES extraites du HTML MindMarket
+   Tailwind: max-md:top-[X%] max-md:left/right-[Y%] max-md:w-[Z%]
+             md:top-[X%] md:left/right-[Y%] md:w-[Z%]
+   ══════════════════════════════════════════════════════════ */
+.mm-char { position: absolute; z-index: 2; }
+
+/* climber: max-md:top[2.8%] max-md:left[-16%] max-md:w[68%] | md:top[10%] md:left[-3.2%] md:w[43%] */
+.mm-ch-climber {
+  top: 2.8%; left: -16%; width: 68%;
+}
+@media (min-width: 1000px) {
+  .mm-ch-climber { top: 10%; left: -3.2%; width: 43%; }
+}
+
+/* shrug: max-md:top[20%] max-md:right[-3%] max-md:w[72%] | md:top[19%] md:right[5%] md:w[45%] */
+.mm-ch-shrug {
+  top: 20%; right: -3%; width: 72%; left: auto;
+}
+@media (min-width: 700px) {
+  .mm-ch-shrug { right: -6.5%; }
+}
+@media (min-width: 1000px) {
+  .mm-ch-shrug { top: 19%; right: 5%; width: 45%; left: auto; }
+}
+
+/* composer: max-md:top[35.5%] max-md:right[-15.5%] max-md:w[68%] | md:top[32%] md:right[-5%] md:w[40%] */
+.mm-ch-composer {
+  top: 35.5%; right: -15.5%; width: 68%; left: auto; z-index: 3;
+}
+@media (min-width: 1000px) {
+  .mm-ch-composer { top: 32%; right: -5%; width: 40%; }
+}
+
+/* trumpeter_1: max-md:top[38%] max-md:left[-7%] max-md:w[56%] | md:top[33.4%] md:left[14%] md:w[32%] */
+.mm-ch-t1 {
+  top: 38%; left: -7%; width: 56%; pointer-events: none;
+}
+@media (min-width: 1000px) {
+  .mm-ch-t1 { top: 33.4%; left: 14%; width: 32%; }
+}
+
+/* trumpeter_2: max-md:top[41.5%] max-md:left[-4%] max-md:w[54%] | md:top[35.5%] md:left[-2%] md:w[32%] */
+.mm-ch-t2 {
+  top: 41.5%; left: -4%; width: 54%; z-index: 3;
+}
+@media (min-width: 1000px) {
+  .mm-ch-t2 { top: 35.5%; left: -2%; width: 32%; }
+}
+
+/* gamer: max-md:top[55.5%] max-md:left[-3%] max-md:w[72%] | md:top[45.35%] md:left[11.5%] md:w[31%] */
+.mm-ch-gamer {
+  top: 55.5%; left: -3%; width: 72%;
+}
+@media (min-width: 1000px) {
+  .mm-ch-gamer { top: 45.35%; left: 11.5%; width: 31%; }
+}
+
+/* scientist: max-md:top[61%] max-md:right[0] max-md:w[68%] | md:top[53%] md:right[0] md:w[34%] */
+.mm-ch-scientist {
+  top: 61%; right: 0; width: 68%; left: auto; z-index: 3;
+}
+@media (min-width: 1000px) {
+  .mm-ch-scientist { top: 53%; width: 34%; }
+}
+
+/* soccer: max-md:top[81%] max-md:right[-5%] max-md:w[100%] | md:top[63%] md:left[-3.5%] md:w[56.5%] */
+.mm-ch-soccer {
+  top: 81%; right: -5%; width: 100%; left: auto; z-index: 3;
+}
+@media (min-width: 1000px) {
+  .mm-ch-soccer { top: 63%; left: -3.5%; right: auto; width: 56.5%; }
+}
+
+/* ══════════════════════════════════════════════════════════
+   END SECTION — c-homepage-timeline_end EXACT
+   absolute bottom, height 60vw (desktop) / 120vw (mobile)
+   binoculars, unicycle, basketball
+   ══════════════════════════════════════════════════════════ */
+.mm-end {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  z-index: 4;
+  height: 120vw; /* mobile */
+}
+@media (min-width: 1000px) {
+  .mm-end { height: 60vw; }
+}
+
+/* binoculars: max-md:right[-16%] max-md:bottom[2%] max-md:w[73%] | md:right[-8.5%] md:bottom[2%] md:w[60%] */
+.mm-bino {
+  position: absolute;
+  right: -16%; bottom: 2%; width: 73%;
+}
+@media (min-width: 1000px) {
+  .mm-bino { right: -8.5%; bottom: 2%; width: 60%; }
+}
+
+/* unicycle: max-md:bottom[8%] max-md:left[16%] max-md:w[70%] | md:bottom[5%] md:left[22%] md:w[54%] */
+.mm-uni {
+  position: absolute;
+  bottom: 8%; left: 16%; width: 70%;
+}
+@media (min-width: 1000px) {
+  .mm-uni { bottom: 5%; left: 22%; width: 54%; }
+}
+
+/* basketball: max-md:bottom[4%] max-md:left[-15%] max-md:w[58%] | md:bottom[10%] md:left[-5%] md:w[44%] */
+.mm-bball {
+  position: absolute;
+  bottom: 4%; left: -15%; width: 58%;
+}
+@media (min-width: 1000px) {
+  .mm-bball { bottom: 10%; left: -5%; width: 44%; }
+}
+
+/* ══════════════════════════════════════════════════════════
+   NUMBERS STACK — c-numbers-stack
+   Desktop: aspect-ratio 450/550 on cards
+   ══════════════════════════════════════════════════════════ */
+.mm-numbers-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+@media (min-width: 1000px) {
+  .mm-numbers-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5vw;
+    align-items: start;
+  }
+  .mm-numbers-sticky {
+    position: sticky;
+    top: calc(var(--menu-bar-height) + 2rem);
+  }
+  /* Desktop: aspect-ratio sur les cartes stat */
+  .mm-numbers-layout > div:last-child > div > div {
+    aspect-ratio: 450/550;
+    min-height: auto !important;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   FOOTER
+   ══════════════════════════════════════════════════════════ */
+.mm-footer-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  max-width: 1200px;
+  margin: 0 auto 3rem;
+}
+@media (min-width: 1000px) {
+  .mm-footer-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    align-items: start;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   LEGACY COMPAT
+   ══════════════════════════════════════════════════════════ */
+.desktop-only { display: none !important }
+.mobile-only  { display: block }
+@media (min-width: 1000px) {
+  .desktop-only { display: flex !important }
+  .mobile-only  { display: none !important }
+}
+
+/* Calendar */
+@media (max-width: 768px) { .agenda-grid { grid-template-columns: 1fr !important } }

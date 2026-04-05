@@ -1,0 +1,12 @@
+node_modules/
+.next/
+.env.local
+tsconfig.tsbuildinfo
+theralgo_project.tar.gz
+theralgo-projet-complet.zip
+theralgo-complet.zip
+ziFytw1V
+ziocHd3w
+*.tar.gz
+*.zip
+package-lock.json
