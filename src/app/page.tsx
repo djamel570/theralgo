@@ -17,23 +17,28 @@ function RivePlayer({src,style}:{src:string;style?:React.CSSProperties}){
   return <div style={style}><RiveComponent/></div>
 }
 function LazyRive({src,cls,style}:{src:string;cls?:string;style?:React.CSSProperties}){
-  const ref=useRef<HTMLDivElement>(null),[v,setV]=useState(false)
-  useEffect(()=>{
-    const el=ref.current;if(!el)return
-    const o=new IntersectionObserver(([e])=>{if(e.isIntersecting){setV(true);o.disconnect()}},{rootMargin:'600px'})
-    o.observe(el);return()=>o.disconnect()
-  },[])
+  const ref=useRef<HTMLDivElement>(null)
+  const v=useInView(ref,600)
   return <div ref={ref} className={cls} style={style}>{v&&<RivePlayer src={src} style={{width:'100%',height:'100%'}}/>}</div>
 }
 
 /* ── Reveal (scroll-triggered fade-in) ── */
-function Reveal({children,delay=0,y=18}:{children:React.ReactNode;delay?:number;y?:number}){
-  const ref=useRef<HTMLDivElement>(null),[v,setV]=useState(false)
+function useInView(ref:React.RefObject<HTMLElement|null>,margin=0){
+  const[v,setV]=useState(false)
   useEffect(()=>{
     const el=ref.current;if(!el)return
-    const o=new IntersectionObserver(([e])=>{if(e.isIntersecting){setV(true);o.disconnect()}},{threshold:0.04})
-    o.observe(el);return()=>o.disconnect()
-  },[])
+    let done=false
+    const check=()=>{if(done)return;const r=el.getBoundingClientRect();if(r.top<window.innerHeight+margin&&r.bottom>-margin){done=true;setV(true);window.removeEventListener('scroll',check)}}
+    check()
+    window.addEventListener('scroll',check,{passive:true})
+    const t=setTimeout(()=>{if(!done){done=true;setV(true)}},3000)
+    return()=>{window.removeEventListener('scroll',check);clearTimeout(t)}
+  },[ref,margin])
+  return v
+}
+function Reveal({children,delay=0,y=18}:{children:React.ReactNode;delay?:number;y?:number}){
+  const ref=useRef<HTMLDivElement>(null)
+  const v=useInView(ref,50)
   return <div ref={ref} style={{opacity:v?1:0,transform:v?'none':`translateY(${y}px)`,transition:`opacity .5s ${delay}s ease,transform .5s ${delay}s ${EASE_SMOOTH}`}}>{children}</div>
 }
 
@@ -65,12 +70,8 @@ function Ico({size=20,color='#fff',bg=CHARCOAL}:{size?:number;color?:string;bg?:
 
 /* ── Feature tile (animated card) ── */
 function CTile({title,desc,color,cta,href}:{title:string;desc:string;color:string;cta:string;href:string}){
-  const ref=useRef<HTMLDivElement>(null),[iv,setIv]=useState(false)
-  useEffect(()=>{
-    const el=ref.current;if(!el)return
-    const o=new IntersectionObserver(([e])=>{if(e.isIntersecting){setIv(true);o.disconnect()}},{rootMargin:'50px',threshold:0.04})
-    o.observe(el);return()=>o.disconnect()
-  },[])
+  const ref=useRef<HTMLDivElement>(null)
+  const iv=useInView(ref,50)
   const ease=EASE_BOUNCE
   return(
     <div ref={ref} style={{position:'relative',borderRadius:20,overflow:'hidden'}}>
