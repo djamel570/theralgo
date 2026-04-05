@@ -3,7 +3,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { useRive } from '@rive-app/react-canvas'
 
-/* ── MindMarket exact tokens ── */
+/* ── Design tokens ── */
 const GN='#8ED462', G='#72C15F', C='#F5F3EF', T='#1A1A1A', M='#6B7280'
 const LV='#C4B5FD', YL='#FBD24D', RD='#FF6B6B', BL='#4F8EF7', PK='#EBC1FF'
 const CHARCOAL='#2C2E2A', BEIGE='#F5F1E4'
@@ -26,7 +26,7 @@ function LazyRive({src,cls,style}:{src:string;cls?:string;style?:React.CSSProper
   return <div ref={ref} className={cls} style={style}>{v&&<RivePlayer src={src} style={{width:'100%',height:'100%'}}/>}</div>
 }
 
-/* ── Reveal (is-inview equivalent) ── */
+/* ── Reveal (scroll-triggered fade-in) ── */
 function Reveal({children,delay=0,y=18}:{children:React.ReactNode;delay?:number;y?:number}){
   const ref=useRef<HTMLDivElement>(null),[v,setV]=useState(false)
   useEffect(()=>{
@@ -63,7 +63,7 @@ function Ico({size=20,color='#fff',bg=CHARCOAL}:{size?:number;color?:string;bg?:
   )
 }
 
-/* ── c-tile-animated — MindMarket exact clone ── */
+/* ── Feature tile (animated card) ── */
 function CTile({title,desc,color,cta,href}:{title:string;desc:string;color:string;cta:string;href:string}){
   const ref=useRef<HTMLDivElement>(null),[iv,setIv]=useState(false)
   useEffect(()=>{
@@ -84,6 +84,21 @@ function CTile({title,desc,color,cta,href}:{title:string;desc:string;color:strin
         </div>
       </div>
     </div>
+  )
+}
+
+/* ── Feature icon block ── */
+function FeatureBlock({icon,title,desc,color,delay=0}:{icon:React.ReactNode;title:string;desc:string;color:string;delay?:number}){
+  return(
+    <Reveal delay={delay}>
+      <div style={{padding:'clamp(1.5rem,2.5vw,2rem)',background:'#fff',borderRadius:24,border:'1px solid rgba(44,46,42,.07)',height:'100%',display:'flex',flexDirection:'column',gap:'1rem',transition:`transform .3s ${EASE_SMOOTH}, box-shadow .3s ease`}}>
+        <div style={{width:52,height:52,borderRadius:16,background:color,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+          {icon}
+        </div>
+        <h3 style={{fontWeight:700,fontSize:'clamp(1rem,1.5vw,1.15rem)',color:CHARCOAL,letterSpacing:'-.03em',lineHeight:1.25}}>{title}</h3>
+        <p style={{fontSize:'.88rem',color:M,lineHeight:1.8}}>{desc}</p>
+      </div>
+    </Reveal>
   )
 }
 
@@ -117,13 +132,12 @@ export default function Home(){
 
   useEffect(()=>{document.body.style.overflow=menuOpen?'hidden':'';return()=>{document.body.style.overflow=''}},[menuOpen])
 
-  const navLinks=[{href:'#systeme',label:'Le système'},{href:'#parcours',label:'Parcours'},{href:'#tarifs',label:'Tarifs'}]
+  const navLinks=[{href:'#systeme',label:'Le système'},{href:'#fonctionnalites',label:'Fonctionnalités'},{href:'#parcours',label:'Parcours'},{href:'#tarifs',label:'Tarifs'}]
 
   return(
     <div style={{fontFamily:F,background:G,overflowX:'hidden'}}>
 
-      {/* ══ NAV DESKTOP — clone c-menu-desktop_bar ══
-          Pill blanc fixe, logo gauche, liens centre, CTA droite */}
+      {/* ══ NAV DESKTOP ══ */}
       <nav className="mm-nav-desktop" style={{position:'fixed',top:16,left:'50%',transform:'translateX(-50%)',zIndex:100,width:'min(calc(100% - 32px),1160px)',display:'flex',alignItems:'center',justifyContent:'space-between',height:60,padding:'0 8px 0 20px',borderRadius:10,background:scrolled?'rgba(245,241,228,.97)':'rgba(245,241,228,.9)',backdropFilter:'blur(20px)',WebkitBackdropFilter:'blur(20px)',boxShadow:scrolled?'0 6px 28px rgba(0,0,0,.11)':'0 2px 10px rgba(0,0,0,.06)',transition:'box-shadow .35s,background .35s'}}>
         <Logo/>
         <div style={{display:'flex',alignItems:'center',gap:4,height:'100%'}}>
@@ -141,21 +155,16 @@ export default function Home(){
         </Link>
       </nav>
 
-      {/* ══ NAV MOBILE — clone c-menu-mobile exact ══
-          position:fixed, padding:16px, barre blanche radius-sm=10px
-          logo gauche | droite: pill beige "Commencer" + cercle vert burger */}
+      {/* ══ NAV MOBILE ══ */}
       <div className="mm-nav-mobile" style={{position:'fixed',top:0,left:0,right:0,zIndex:100,padding:16,pointerEvents:'none'}}>
         <div style={{pointerEvents:'auto',background:'#fff',borderRadius:10,display:'flex',alignItems:'center',justifyContent:'space-between',padding:'8px 8px 8px 14px',minHeight:60,boxShadow:'0 2px 16px rgba(0,0,0,.09)'}}>
           <Logo onClick={close}/>
           <div style={{display:'flex',alignItems:'center',gap:10}}>
-            {/* pill beige "Commencer" — c-menu-mobile_contact */}
             <Link href="/signup" style={{textDecoration:'none'}} onClick={close}>
               <span style={{display:'inline-flex',alignItems:'center',fontSize:'1.0625rem',fontWeight:500,letterSpacing:'-.04em',padding:'8px 12px',background:BEIGE,borderRadius:5,color:CHARCOAL,lineHeight:1.25}}>Commencer</span>
             </Link>
-            {/* Burger — c-menu-mobile_burger: cercle vert, 2 lignes noires → croix */}
             <button onClick={()=>setMenuOpen(o=>!o)} aria-label={menuOpen?'Fermer':'Menu'}
               style={{width:40,height:40,borderRadius:'50%',border:'none',background:GN,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:5,cursor:'pointer',flexShrink:0,position:'relative'}}>
-              {/* lignes du burger */}
               <span style={{display:'block',width:17,height:2,background:CHARCOAL,borderRadius:1,transition:`transform .3s ${EASE_SMOOTH}`,transform:menuOpen?'translateY(3.5px) rotate(45deg)':'none'}}/>
               <span style={{display:'block',width:17,height:2,background:CHARCOAL,borderRadius:1,transition:`transform .3s ${EASE_SMOOTH}`,transform:menuOpen?'translateY(-3.5px) rotate(-45deg)':'none'}}/>
             </button>
@@ -163,11 +172,10 @@ export default function Home(){
         </div>
       </div>
 
-      {/* ══ MENU MOBILE PANEL — clone c-menu-mobile_nav ══ */}
+      {/* ══ MENU MOBILE PANEL ══ */}
       <div aria-hidden={!menuOpen} style={{position:'fixed',inset:0,zIndex:99,pointerEvents:menuOpen?'all':'none'}}>
         <div onClick={close} style={{position:'absolute',inset:0,background:'rgba(0,0,0,.35)',opacity:menuOpen?1:0,transition:'opacity .25s ease'}}/>
         <div style={{position:'absolute',top:92,left:16,right:16,background:'#fff',borderRadius:10,boxShadow:'0 12px 40px rgba(0,0,0,.14)',overflow:'hidden',transform:menuOpen?'none':'translateY(-10px)',opacity:menuOpen?1:0,transition:`transform .3s ${EASE_SMOOTH}, opacity .22s ease`,pointerEvents:menuOpen?'auto':'none'}}>
-          {/* c-menu-mobile_list */}
           <div style={{padding:'12px 12px 8px'}}>
             <div style={{background:BEIGE,borderRadius:8,overflow:'hidden'}}>
               {navLinks.map((l,i)=>(
@@ -196,7 +204,7 @@ export default function Home(){
         </div>
       </div>
 
-      {/* ══ HERO — clone c-hero-home exact ══ */}
+      {/* ══ HERO ══ */}
       <div className="mm-hero" style={{minHeight:'calc(100svh + 50px)',marginBottom:-50,background:G,overflow:'hidden',position:'relative'}}>
         <div style={{paddingTop:'calc(60px + 2rem)',paddingBottom:'clamp(2.5rem,8vw,6rem)',display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100svh'}}>
           <div style={{textAlign:'center',padding:'0 clamp(1rem,15vw,22rem)',maxWidth:'none',width:'100%'}}>
@@ -231,7 +239,7 @@ export default function Home(){
       {/* ══ CREAM CONTAINER ══ */}
       <div id="systeme" style={{background:BEIGE,borderRadius:'50px 50px 0 0',position:'relative',zIndex:5,overflowX:'hidden'}}>
 
-        {/* ── INTRO — Mobile: block (canvas → text), Desktop: flex row ── */}
+        {/* ── INTRO ── */}
         <div className="mm-intro" style={{position:'relative',zIndex:5}}>
           <div className="mm-intro-canvas">
             <div style={{aspectRatio:'1430/1022',position:'relative'}}>
@@ -244,13 +252,13 @@ export default function Home(){
           <div className="mm-intro-text">
             <Reveal>
               <p style={{fontWeight:500,fontSize:'clamp(1.1rem,2.5vw,1.75rem)',letterSpacing:'-.04em',lineHeight:1.25,color:CHARCOAL,marginBottom:'clamp(1rem,2vw,2rem)',maxWidth:520}}>
-                Theralgo construit et opère pour vous le système complet d&apos;acquisition patient — de la Signature Digitale au Partage Patient.
+                Theralgo construit et op&egrave;re pour vous le syst&egrave;me complet d&apos;acquisition patient &mdash; ciblage algorithmique, contenu IA, produits digitaux, et partage patient. Tout-en-un.
               </p>
             </Reveal>
             <Reveal delay={.08}>
               <Link href="/signup">
                 <button style={{display:'inline-flex',alignItems:'center',gap:8,padding:'0 12px 0 18px',height:52,borderRadius:999,border:'none',background:GN,color:CHARCOAL,fontWeight:600,fontSize:'1.0625rem',letterSpacing:'-.04em',cursor:'pointer',fontFamily:F}}>
-                  Démarrer <Ico size={28} bg={CHARCOAL} color='#fff'/>
+                  D&eacute;marrer <Ico size={28} bg={CHARCOAL} color='#fff'/>
                 </button>
               </Link>
             </Reveal>
@@ -260,7 +268,7 @@ export default function Home(){
         {/* ══ TIMELINE PATH ══ */}
         <div className="mm-path">
 
-          {/* Desktop SVG — hidden mobile */}
+          {/* Desktop SVG */}
           <svg className="mm-svg-desktop" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1944.2 6151.5" preserveAspectRatio="none" aria-hidden>
             <defs>
               <linearGradient id="pg" x1="1020.4" x2="1550.5" y1="2766.3" y2="3624.5" gradientTransform="matrix(1 0 0 -1 -242 5807.4)" gradientUnits="userSpaceOnUse">
@@ -272,9 +280,7 @@ export default function Home(){
             <path ref={secRef} fill="none" stroke={GN} strokeLinecap="round" strokeWidth="500" d="M679.3 2510c552.3-90 1689.3 743.4 475.6 1689-985 767.5-234 1313-234 1702.5"/>
           </svg>
 
-          {/* Mobile SVG — clone exact: mr-[-64%] ml-[-50%] max-md:block max-md:aspect-[847/4471] md:hidden
-              sm breakpoint: mr-[-54%] ml-[-45%]
-              Provides height to container on mobile */}
+          {/* Mobile SVG */}
           <svg className="mm-svg-mobile" viewBox="0 0 847.9 4471" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
             <defs>
               <linearGradient id="mg" gradientUnits="userSpaceOnUse" x1="208.1" y1="2481.6" x2="627.8" y2="2783.1" gradientTransform="matrix(1 0 0 -1 0 4470)">
@@ -286,48 +292,31 @@ export default function Home(){
             <path ref={mobSecRef} style={{fill:'none',stroke:GN,strokeWidth:250,strokeLinecap:'round'} as React.CSSProperties} d="M373.6,1813c1.9,0,3.9-0.1,5.8-0.1c335.8,0,514.9,555.2,112.5,1261.5c-326.6,573.2-77.6,980.7-77.6,1271.6"/>
           </svg>
 
-          {/* ── 4 TILES — clone c-homepage-timeline-cards ──
-              positions EXACTES extraites du HTML MindMarket:
-              Mobile: left/right = var(--unit-md) = 20px, width: auto
-              Desktop: positions en % via grid 16 colonnes
-              Tile 1 (RD): md:right=1/16, md:top=11%   | max-md: top=9%,  right=20px
-              Tile 2 (YL): md:left=1/16, md:top=25.5%  | max-md: top=22%, left=20px
-              Tile 3 (BL): md:left=1/16, md:top=44%    | max-md: top=45.5%, left=20px
-              Tile 4 (PK): md:right=1/16, md:top=70%   | max-md: top=70%, right=20px */}
+          {/* ── 4 Feature Cards along timeline ── */}
           <div className="mm-card mm-card-1">
-            <CTile title="Votre Signature Digitale" desc="Notre équipe construit votre présence digitale sur-mesure : copywriting optimisé, positionnement et page d'acquisition conçus pour convertir vos futurs patients." color={RD+'cc'} cta="Découvrir" href="/signup"/>
+            <CTile title="Ciblage Algorithmique" desc="Notre IA identifie vos futurs patients via leurs comportements, centres d'int&eacute;r&ecirc;t et moments de vie — bien avant qu'ils pensent &agrave; chercher un th&eacute;rapeute." color={RD+'cc'} cta="D&eacute;couvrir" href="/signup"/>
           </div>
           <div className="mm-card mm-card-2">
-            <CTile title="Vos futurs patients existent déjà" desc="Nos experts les trouvent via leurs comportements d'achat, leurs centres d'intérêt et leurs moments de vie — bien avant qu'ils pensent à vous chercher." color={YL+'dd'} cta="Découvrir" href="/signup"/>
+            <CTile title="G&eacute;n&eacute;rateur de Contenu IA" desc="Cr&eacute;ez des posts, articles et vid&eacute;os adapt&eacute;s &agrave; votre sp&eacute;cialit&eacute; en quelques clics. L'IA r&eacute;dige, vous validez — votre pr&eacute;sence digitale tourne en automatique." color={YL+'dd'} cta="D&eacute;couvrir" href="/signup"/>
           </div>
           <div className="mm-card mm-card-3">
-            <CTile title="Campagnes en illimité" desc="Depuis votre dashboard, lancez autant de campagnes que vous voulez, à tout moment — séances, créneaux, offres. Aucune limite, aucun supplément." color={BL+'bb'} cta="Démarrer" href="/signup"/>
+            <CTile title="Produits Digitaux" desc="Vendez des ebooks, programmes et formations en ligne directement depuis votre dashboard. Cr&eacute;ation, paiement Stripe, livraison — tout est int&eacute;gr&eacute;." color={BL+'bb'} cta="D&eacute;marrer" href="/signup"/>
           </div>
           <div className="mm-card mm-card-4">
-            <CTile title="Partage Patient" desc="Après chaque séance, votre patient reçoit un lien personnalisé. Il le partage avec un proche qui prend rendez-vous directement sur votre page." color={PK+'cc'} cta="Découvrir" href="/signup"/>
+            <CTile title="Partage Patient" desc="Apr&egrave;s chaque s&eacute;ance, votre patient re&ccedil;oit un lien personnalis&eacute;. Il le partage avec un proche qui prend rendez-vous directement sur votre page." color={PK+'cc'} cta="D&eacute;couvrir" href="/signup"/>
           </div>
 
-          {/* ── RIVE CHARS — positions EXACTES du HTML MindMarket (Tailwind → inline CSS) ── */}
-          {/* climber: max-md:top[2.8%] max-md:left[-16%] max-md:w[68%] md:top[10%] md:left[-3.2%] md:w[43%] */}
+          {/* ── Rive characters ── */}
           <LazyRive src="/rive/climber.riv"     cls="mm-char mm-ch-climber"  style={{position:'absolute',zIndex:2,aspectRatio:'1000/1225'}}/>
-          {/* shrug: max-md:top[20%] max-md:right[-3%] max-md:w[72%] md:top[19%] md:right[5%] md:w[45%] */}
           <LazyRive src="/rive/shrug.riv"       cls="mm-char mm-ch-shrug"    style={{position:'absolute',zIndex:2,aspectRatio:'1153/1188'}}/>
-          {/* composer: max-md:top[35.5%] max-md:right[-15.5%] max-md:w[68%] md:top[32%] md:right[-5%] md:w[40%] */}
           <LazyRive src="/rive/composer.riv"    cls="mm-char mm-ch-composer" style={{position:'absolute',zIndex:3,aspectRatio:'1000/1151'}}/>
-          {/* trumpeter_1: max-md:top[38%] max-md:left[-7%] max-md:w[56%] md:top[33.4%] md:left[14%] md:w[32%] */}
           <LazyRive src="/rive/trumpeter_1.riv" cls="mm-char mm-ch-t1"       style={{position:'absolute',zIndex:2,aspectRatio:'808/738',pointerEvents:'none'}}/>
-          {/* trumpeter_2: max-md:top[41.5%] max-md:left[-4%] max-md:w[54%] md:top[35.5%] md:left[-2%] md:w[32%] */}
           <LazyRive src="/rive/trumpeter_2.riv" cls="mm-char mm-ch-t2"       style={{position:'absolute',zIndex:3,aspectRatio:'1/1'}}/>
-          {/* gamer: max-md:top[55.5%] max-md:left[-3%] max-md:w[72%] md:top[45.35%] md:left[11.5%] md:w[31%] */}
           <LazyRive src="/rive/gamer.riv"       cls="mm-char mm-ch-gamer"    style={{position:'absolute',zIndex:2,aspectRatio:'1/1'}}/>
-          {/* scientist: max-md:top[61%] max-md:w[68%] md:top[53%] md:right[0] md:w[34%] */}
           <LazyRive src="/rive/scientist.riv"   cls="mm-char mm-ch-scientist" style={{position:'absolute',zIndex:3,aspectRatio:'1000/1271'}}/>
-          {/* soccer: max-md:top[81%] max-md:right[-5%] max-md:w[100%] md:top[63%] md:left[-3.5%] md:w[56.5%] */}
           <LazyRive src="/rive/soccer.riv"      cls="mm-char mm-ch-soccer"   style={{position:'absolute',zIndex:3,aspectRatio:'1789/1438'}}/>
 
-          {/* ── END SECTION — c-homepage-timeline_end ──
-              absolute bottom, height 60vw (desktop) / 120vw (mobile)
-              binoculars, unicycle, basketball — positions MindMarket exactes */}
+          {/* ── End section characters ── */}
           <div className="mm-end">
             <LazyRive src="/rive/binoculars.riv"        cls="mm-bino"  style={{position:'absolute',aspectRatio:'1789/1438'}}/>
             <LazyRive src="/rive/unicycle.riv"          cls="mm-uni"   style={{position:'absolute',aspectRatio:'1694/1594'}}/>
@@ -335,27 +324,60 @@ export default function Home(){
           </div>
 
         </div>
-        {/* /mm-path */}
 
-        {/* ══ PARCOURS — après timeline ══ */}
+        {/* ══ FONCTIONNALITES — nouvelle section complète ══ */}
+        <section id="fonctionnalites" style={{background:BEIGE,padding:'clamp(4rem,7vw,7rem) clamp(1.25rem,6.25vw,5rem)',position:'relative',zIndex:10}}>
+          <div style={{maxWidth:1200,margin:'0 auto'}}>
+            <Reveal>
+              <div style={{marginBottom:'clamp(2.5rem,5vw,4rem)',maxWidth:700}}>
+                <span style={{display:'inline-block',padding:'4px 14px',borderRadius:999,background:`${GN}22`,color:'#2D7A1A',fontSize:'.72rem',fontWeight:700,letterSpacing:'.07em',textTransform:'uppercase',marginBottom:14}}>Plateforme compl&egrave;te</span>
+                <h2 style={{fontWeight:500,fontSize:'clamp(2rem,5vw,4.75rem)',color:CHARCOAL,letterSpacing:'-.06em',lineHeight:.93}}>
+                  Tout ce dont vous avez besoin. Rien de superflu.
+                </h2>
+              </div>
+            </Reveal>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(300px,1fr))',gap:'clamp(.75rem,1.5vw,1.25rem)'}}>
+              <FeatureBlock delay={0} color={`${GN}25`} title="Ciblage Algorithmique" desc="Notre algorithme cible vos futurs patients par comportements d'achat, centres d'int&eacute;r&ecirc;t et g&eacute;olocalisation. Campagnes Meta illimit&eacute;es incluses."
+                icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke={GN} strokeWidth="2"/><circle cx="12" cy="12" r="5" stroke={GN} strokeWidth="2"/><circle cx="12" cy="12" r="1.5" fill={GN}/></svg>}/>
+              <FeatureBlock delay={.06} color={`${BL}25`} title="G&eacute;n&eacute;rateur de Contenu IA" desc="Cr&eacute;ez posts, articles et scripts vid&eacute;o adapt&eacute;s &agrave; votre sp&eacute;cialit&eacute;. L'IA g&eacute;n&egrave;re, vous validez et publiez en un clic."
+                icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 3v3m0 12v3M3 12h3m12 0h3m-2.5-6.5L16 8m-8 8l-2.5 2.5m13-2.5L16 16M5.5 5.5 8 8" stroke={BL} strokeWidth="2" strokeLinecap="round"/></svg>}/>
+              <FeatureBlock delay={.12} color={`${YL}30`} title="Produits Digitaux" desc="Cr&eacute;ez et vendez ebooks, programmes et formations. Paiement Stripe int&eacute;gr&eacute;, livraison automatique, suivi des ventes en temps r&eacute;el."
+                icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="3" stroke="#B8860B" strokeWidth="2"/><path d="M3 10h18" stroke="#B8860B" strokeWidth="2"/><circle cx="7" cy="15" r="1" fill="#B8860B"/></svg>}/>
+              <FeatureBlock delay={.18} color={`${RD}20`} title="Signature Digitale" desc="Votre page d'acquisition sur-mesure : copywriting optimis&eacute;, positionnement unique, vid&eacute;o de pr&eacute;sentation et formulaire de prise de RDV."
+                icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4 20h16M4 20l4-4 8-8 4 4-8 8-4 4v-4z" stroke={RD} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}/>
+              <FeatureBlock delay={.24} color={`${PK}30`} title="Partage Patient" desc="Lien de parrainage automatis&eacute; apr&egrave;s chaque s&eacute;ance. Votre patient partage, son proche prend RDV. Croissance organique garantie."
+                icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M16 3h5v5M21 3l-9 9M10 5H5a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-5" stroke="#A855F7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}/>
+              <FeatureBlock delay={.30} color={`${LV}30`} title="Outreach Entreprises" desc="Contactez directement les entreprises de votre zone pour des partenariats bien-&ecirc;tre. Th&eacute;rapie en entreprise, une nouvelle source de revenus."
+                icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3" y="7" width="18" height="14" rx="2" stroke="#7C3AED" strokeWidth="2"/><path d="M8 7V5a4 4 0 018 0v2" stroke="#7C3AED" strokeWidth="2" strokeLinecap="round"/></svg>}/>
+              <FeatureBlock delay={.36} color={`${GN}18`} title="Vid&eacute;oth&egrave;que" desc="Biblioth&egrave;que de vid&eacute;os professionnelles pour votre page et vos r&eacute;seaux. Tournage, montage, sous-titrage — tout est inclus."
+                icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="20" height="16" rx="3" stroke={GN} strokeWidth="2"/><path d="M10 9l5 3-5 3V9z" fill={GN}/></svg>}/>
+              <FeatureBlock delay={.42} color={`${BL}18`} title="Dashboard Temps R&eacute;el" desc="Leads, rendez-vous, revenus, performances des campagnes — tout centralis&eacute; dans un dashboard accessible depuis votre t&eacute;l&eacute;phone."
+                icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="2" stroke={BL} strokeWidth="2"/><rect x="14" y="3" width="7" height="7" rx="2" stroke={BL} strokeWidth="2"/><rect x="3" y="14" width="7" height="7" rx="2" stroke={BL} strokeWidth="2"/><rect x="14" y="14" width="7" height="7" rx="2" stroke={BL} strokeWidth="2"/></svg>}/>
+              <FeatureBlock delay={.48} color={`${RD}15`} title="Agenda Connect&eacute;" desc="Synchronisation Google, Apple et Outlook. Vos patients prennent RDV en ligne, vous recevez la notification. Z&eacute;ro double-saisie."
+                icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke={RD} strokeWidth="2"/><path d="M3 10h18M8 2v4m8-4v4" stroke={RD} strokeWidth="2" strokeLinecap="round"/></svg>}/>
+            </div>
+          </div>
+        </section>
+
+        {/* ══ PARCOURS ══ */}
         <section id="parcours" style={{background:BEIGE,padding:'clamp(4rem,7vw,7rem) clamp(1.25rem,6.25vw,5rem)',position:'relative',zIndex:10}}>
           <div style={{maxWidth:1200,margin:'0 auto'}}>
             <Reveal>
               <div style={{marginBottom:'clamp(2rem,4vw,4rem)'}}>
                 <span style={{display:'inline-block',padding:'4px 12px',borderRadius:999,background:`${YL}55`,color:'#7A4F00',fontSize:'.72rem',fontWeight:700,letterSpacing:'.07em',textTransform:'uppercase',marginBottom:12}}>Le parcours</span>
                 <h2 style={{fontWeight:500,fontSize:'clamp(2rem,5vw,5rem)',color:CHARCOAL,letterSpacing:'-.06em',lineHeight:.93,maxWidth:680}}>
-                  De zéro à un cabinet plein — en 10 jours.
+                  De z&eacute;ro &agrave; un cabinet plein &mdash; en 10 jours.
                 </h2>
               </div>
             </Reveal>
             <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:'clamp(.75rem,1.5vw,1.25rem)'}}>
               {([
-                {n:'01',c:GN, t:'Signature Digitale',   d:"Notre équipe crée votre copywriting, votre positionnement et votre page d'acquisition sur-mesure."},
-                {n:'02',c:LV, t:'Ciblage & Campagnes',  d:"Nos experts configurent vos campagnes pour toucher vos futurs patients via leurs comportements et centres d'intérêt."},
-                {n:'03',c:YL, t:'Campagnes Illimitées', d:"Depuis votre dashboard, lancez autant de campagnes que vous voulez — à tout moment, en quelques clics."},
-                {n:'04',c:BL, t:"Page d'Acquisition",   d:"Page optimisée pour convertir : copywriting, vidéo, formulaire de prise de RDV intégré."},
-                {n:'05',c:RD, t:'Partage Patient',       d:"Lien personnalisé automatique après chaque séance. Votre patient le partage — ce proche prend RDV."},
-                {n:'06',c:PK, t:'Dashboard & Résultats',d:"Patients, RDV, revenus en temps réel depuis votre téléphone. Tout centralisé."},
+                {n:'01',c:GN, t:'Signature Digitale',   d:"Notre \u00e9quipe cr\u00e9e votre copywriting, votre positionnement et votre page d'acquisition sur-mesure."},
+                {n:'02',c:LV, t:'Ciblage Algorithmique', d:"L'algorithme identifie vos futurs patients via comportements d'achat, centres d'int\u00e9r\u00eat et g\u00e9olocalisation."},
+                {n:'03',c:YL, t:'Contenu IA & Vid\u00e9os',d:"G\u00e9n\u00e9rez automatiquement du contenu adapt\u00e9 \u00e0 votre sp\u00e9cialit\u00e9. Posts, articles, scripts vid\u00e9o — en quelques clics."},
+                {n:'04',c:BL, t:'Campagnes Illimit\u00e9es', d:"Lancez autant de campagnes Meta que vous voulez depuis votre dashboard. Aucune limite, aucun suppl\u00e9ment."},
+                {n:'05',c:RD, t:'Produits & Ventes',     d:"Cr\u00e9ez vos produits digitaux (ebooks, formations), vendez-les en ligne avec paiement Stripe int\u00e9gr\u00e9."},
+                {n:'06',c:PK, t:'Dashboard & R\u00e9sultats',d:"Patients, RDV, revenus, ventes digitales, performances — tout en temps r\u00e9el depuis votre t\u00e9l\u00e9phone."},
               ] as {n:string,c:string,t:string,d:string}[]).map((s,i)=>(
                 <Reveal key={s.n} delay={i*.06}>
                   <div style={{padding:'clamp(1rem,2vw,1.5rem)',background:'#fff',borderRadius:20,border:'1px solid rgba(44,46,42,.07)',height:'100%',display:'flex',flexDirection:'column',gap:'.85rem'}}>
@@ -369,28 +391,25 @@ export default function Home(){
           </div>
         </section>
 
-        {/* ══ NUMBERS STACK — clone c-numbers-stack exact ══
-            background: BEIGE, border-radius: 50px, position:relative z-10
-            sticky left title + 3 cards right (stacking avec translateY)
-            card colors: -blue (white bg, blue text), -green (green bg, white), -red (red bg, white) */}
+        {/* ══ NUMBERS STACK ══ */}
         <section style={{background:BEIGE,borderRadius:50,padding:'clamp(4rem,7vw,10rem) clamp(1.25rem,6.25vw,5rem)',position:'relative',zIndex:10,margin:'0'}}>
           <div style={{maxWidth:1200,margin:'0 auto',display:'grid',gridTemplateColumns:'1fr',gap:'3rem'}}>
             <div className="mm-numbers-layout">
               <div className="mm-numbers-sticky">
                 <Reveal>
                   <h2 style={{fontWeight:500,fontSize:'clamp(2rem,4.5vw,4.75rem)',color:CHARCOAL,letterSpacing:'-.06em',lineHeight:.95,marginBottom:'1.5rem',maxWidth:500}}>
-                    Quelques chiffres qui parlent d&apos;eux-mêmes.
+                    Quelques chiffres qui parlent d&apos;eux-m&ecirc;mes.
                   </h2>
                   <p style={{fontSize:'clamp(.9rem,1.1vw,1.0625rem)',color:M,fontWeight:500,letterSpacing:'-.04em',lineHeight:1.5,maxWidth:340}}>
-                    Ces chiffres représentent la réalité de nos thérapeutes, semaine après semaine.
+                    Ces chiffres repr&eacute;sentent la r&eacute;alit&eacute; de nos th&eacute;rapeutes, semaine apr&egrave;s semaine.
                   </p>
                 </Reveal>
               </div>
               <div style={{display:'flex',flexDirection:'column',gap:'clamp(.75rem,1.5vw,1.25rem)'}}>
                 {([
-                  {bg:'#fff',    fg:BL,    stat:'120+',  label:'Thérapeutes actifs en France et en Belgique.'},
-                  {bg:GN,        fg:'#fff', stat:'2 847', label:'Patients générés pour nos thérapeutes en 2025.'},
-                  {bg:'#FF705D', fg:'#fff', stat:'97%',   label:'Taux de satisfaction après 3 mois.'},
+                  {bg:'#fff',    fg:BL,    stat:'120+',  label:'Th\u00e9rapeutes actifs en France et en Belgique.'},
+                  {bg:GN,        fg:'#fff', stat:'2 847', label:'Patients g\u00e9n\u00e9r\u00e9s pour nos th\u00e9rapeutes en 2025.'},
+                  {bg:'#FF705D', fg:'#fff', stat:'97%',   label:'Taux de satisfaction apr\u00e8s 3 mois.'},
                 ] as {bg:string,fg:string,stat:string,label:string}[]).map((card,i)=>(
                   <Reveal key={i} delay={i*.1}>
                     <div style={{background:card.bg,borderRadius:36,padding:'clamp(1.5rem,3vw,2.5rem)',display:'flex',flexDirection:'column',gap:'clamp(1rem,2vw,1.5rem)',minHeight:'min(340px,80vw)',border:card.bg==='#fff'?'1px solid rgba(44,46,42,.1)':'none'}}>
@@ -423,17 +442,29 @@ export default function Home(){
                 <div style={{display:'flex',gap:'1.25rem',marginBottom:'1.5rem',flexWrap:'wrap'}}>
                   <div style={{flex:1,minWidth:130}}>
                     <p style={{fontSize:'.7rem',fontWeight:700,color:M,letterSpacing:'.08em',textTransform:'uppercase',marginBottom:6}}>Mise en place</p>
-                    <p style={{fontWeight:800,fontSize:'clamp(2.2rem,5vw,3rem)',color:CHARCOAL,letterSpacing:'-.06em',lineHeight:.95}}>997€</p>
+                    <p style={{fontWeight:800,fontSize:'clamp(2.2rem,5vw,3rem)',color:CHARCOAL,letterSpacing:'-.06em',lineHeight:.95}}>997&euro;</p>
                   </div>
                   <div style={{width:1,background:'rgba(0,0,0,.1)',alignSelf:'stretch'}}/>
                   <div style={{flex:1,minWidth:130,textAlign:'right'}}>
                     <p style={{fontSize:'.7rem',fontWeight:700,color:M,letterSpacing:'.08em',textTransform:'uppercase',marginBottom:6}}>Puis / mois</p>
-                    <p style={{fontWeight:800,fontSize:'clamp(2.2rem,5vw,3rem)',color:CHARCOAL,letterSpacing:'-.06em',lineHeight:.95}}>97€</p>
+                    <p style={{fontWeight:800,fontSize:'clamp(2.2rem,5vw,3rem)',color:CHARCOAL,letterSpacing:'-.06em',lineHeight:.95}}>97&euro;</p>
                   </div>
                 </div>
-                <p style={{fontSize:'.85rem',color:M,marginBottom:'1.25rem',lineHeight:1.8}}>Actif en 10 jours. Système clé en main, opéré par notre équipe.</p>
+                <p style={{fontSize:'.85rem',color:M,marginBottom:'1.25rem',lineHeight:1.8}}>Actif en 10 jours. Syst&egrave;me cl&eacute; en main, op&eacute;r&eacute; par notre &eacute;quipe.</p>
                 <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:'1.75rem'}}>
-                  {['Page thérapeute (Signature Digitale)','Campagnes Meta ciblées par zone','Ciblage comportemental','Campagnes illimitées','Partage Patient automatique','Agenda connecté (Google, Apple, Outlook)','Dashboard patients temps réel','Support dédié'].map((f,i)=>(
+                  {[
+                    'Page th\u00e9rapeute (Signature Digitale)',
+                    'Ciblage algorithmique par zone & comportement',
+                    'Campagnes Meta illimit\u00e9es',
+                    'G\u00e9n\u00e9rateur de contenu IA',
+                    'Produits digitaux & paiement Stripe',
+                    'Partage Patient automatique',
+                    'Vid\u00e9oth\u00e8que professionnelle',
+                    'Outreach entreprises',
+                    'Agenda connect\u00e9 (Google, Apple, Outlook)',
+                    'Dashboard patients & ventes temps r\u00e9el',
+                    'Support d\u00e9di\u00e9',
+                  ].map((f,i)=>(
                     <div key={i} style={{display:'flex',alignItems:'flex-start',gap:10}}>
                       <div style={{width:20,height:20,borderRadius:'50%',background:`${GN}22`,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,marginTop:1}}>
                         <svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3L9 1" stroke={GN} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/></svg>
@@ -461,12 +492,12 @@ export default function Home(){
           <div style={{position:'relative',zIndex:2,textAlign:'center',maxWidth:640}}>
             <Reveal>
               <h2 style={{fontWeight:500,fontSize:'clamp(2.5rem,6.5vw,7rem)',color:CHARCOAL,letterSpacing:'-.06em',lineHeight:.92,marginBottom:'clamp(1rem,2vw,2rem)'}}>
-                Votre cabinet mérite<br/>mieux que le hasard.
+                Votre cabinet m&eacute;rite<br/>mieux que le hasard.
               </h2>
             </Reveal>
             <Reveal delay={.08}>
               <p style={{fontSize:'clamp(.85rem,1.1vw,.95rem)',color:CHARCOAL,opacity:.6,maxWidth:400,margin:'0 auto 2.5rem',lineHeight:1.8}}>
-                Theralgo installe et opère pour vous le système complet — actif en 10 jours.
+                Theralgo installe et op&egrave;re pour vous le syst&egrave;me complet — ciblage, contenu, produits digitaux, partage patient. Actif en 10 jours.
               </p>
             </Reveal>
             <Reveal delay={.14}>
@@ -485,18 +516,18 @@ export default function Home(){
             <div>
               <Logo light/>
               <p style={{fontSize:'.88rem',color:'rgba(255,255,255,.45)',lineHeight:1.8,marginTop:'1.5rem',maxWidth:360}}>
-                Le système complet d&apos;acquisition patient pour thérapeutes. Installation en 10 jours.
+                Le syst&egrave;me complet d&apos;acquisition patient pour th&eacute;rapeutes. Ciblage algorithmique, contenu IA, produits digitaux. Actif en 10 jours.
               </p>
               <Link href="/signup" style={{display:'inline-block',marginTop:'2rem'}}>
                 <button style={{display:'inline-flex',alignItems:'center',gap:8,padding:'0 12px 0 16px',height:44,borderRadius:999,border:`2px solid ${GN}`,background:'transparent',color:GN,fontWeight:600,fontSize:'.9rem',letterSpacing:'-.04em',cursor:'pointer',fontFamily:F}}>
-                  Démarrer <Ico size={24} bg={GN} color={CHARCOAL}/>
+                  D&eacute;marrer <Ico size={24} bg={GN} color={CHARCOAL}/>
                 </button>
               </Link>
             </div>
             <div style={{display:'flex',gap:'clamp(2rem,5vw,4rem)',flexWrap:'wrap'}}>
               <div>
                 <p style={{fontWeight:700,fontSize:'.7rem',color:'rgba(255,255,255,.35)',letterSpacing:'.08em',textTransform:'uppercase',marginBottom:'1rem'}}>Produit</p>
-                {([['Le système','#systeme'],['Parcours','#parcours'],['Tarifs','#tarifs']] as [string,string][]).map(([l,h])=>(
+                {([['Le syst\u00e8me','#systeme'],['Fonctionnalit\u00e9s','#fonctionnalites'],['Parcours','#parcours'],['Tarifs','#tarifs']] as [string,string][]).map(([l,h])=>(
                   <a key={l} href={h} style={{display:'block',color:'rgba(255,255,255,.65)',textDecoration:'none',fontSize:'.9rem',marginBottom:'.6rem',fontWeight:500,letterSpacing:'-.03em'}}>{l}</a>
                 ))}
               </div>
@@ -506,12 +537,18 @@ export default function Home(){
                   <a key={l} href={h} style={{display:'block',color:'rgba(255,255,255,.65)',textDecoration:'none',fontSize:'.9rem',marginBottom:'.6rem',fontWeight:500,letterSpacing:'-.03em'}}>{l}</a>
                 ))}
               </div>
+              <div>
+                <p style={{fontWeight:700,fontSize:'.7rem',color:'rgba(255,255,255,.35)',letterSpacing:'.08em',textTransform:'uppercase',marginBottom:'1rem'}}>Fonctionnalit&eacute;s</p>
+                {([['Ciblage IA','/signup'],['Contenu IA','/signup'],['Produits digitaux','/signup'],['Partage Patient','/signup']] as [string,string][]).map(([l,h])=>(
+                  <a key={l} href={h} style={{display:'block',color:'rgba(255,255,255,.65)',textDecoration:'none',fontSize:'.9rem',marginBottom:'.6rem',fontWeight:500,letterSpacing:'-.03em'}}>{l}</a>
+                ))}
+              </div>
             </div>
           </div>
           <div style={{borderTop:'1px solid rgba(255,255,255,.1)',marginTop:'3rem',paddingTop:'1.25rem',display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:10}}>
-            <p style={{fontSize:'.75rem',color:'rgba(255,255,255,.3)',fontWeight:500}}>© 2026 Theralgo — Tous droits réservés</p>
+            <p style={{fontSize:'.75rem',color:'rgba(255,255,255,.3)',fontWeight:500}}>&copy; 2026 Theralgo &mdash; Tous droits r&eacute;serv&eacute;s</p>
             <div style={{display:'flex',gap:'1.5rem'}}>
-              {([['Mentions légales','/'],['Confidentialité','/']] as [string,string][]).map(([l,h])=>(
+              {([['Mentions l\u00e9gales','/'],['Confidentialit\u00e9','/']] as [string,string][]).map(([l,h])=>(
                 <a key={l} href={h} style={{fontSize:'.75rem',color:'rgba(255,255,255,.3)',textDecoration:'none',fontWeight:500}}>{l}</a>
               ))}
             </div>
