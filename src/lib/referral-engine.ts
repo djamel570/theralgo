@@ -1087,3 +1087,21 @@ export async function getReferralStats(options: {
 }): Promise<ReferralStats> {
   return referralEngine.getReferralStats(options.userId, options.period || 'all')
 }
+export async function createCampaign(options: {
+  userId: string
+  name?: string
+  triggerType?: string
+  triggerDelayHours?: number
+  shareMessageTemplate?: string
+  whatsappMessage?: string
+  emailSubject?: string
+  emailBody?: string
+  linkType?: string
+  productId?: string
+  rewardType?: string
+  rewardValue?: number
+  isActive?: boolean
+}): Promise<ReferralCampaign> {
+  const { userId, ...campaignData } = options
+  return referralEngine.createCampaign(userId, campaignData as Partial<ReferralCampaign>)
+}
