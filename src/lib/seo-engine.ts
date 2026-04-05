@@ -7,7 +7,6 @@ import { createClient } from '@/lib/supabase'
 
 const anthropic = new Anthropic()
 const supabase = createClient()
-
 // ============================================================================
 // TYPES & INTERFACES
 // ============================================================================
@@ -254,7 +253,7 @@ export const SEASONAL_TOPICS: Record<number, { topics: string[]; hooks: string[]
   2: {
     topics: ['Saint-Valentin et relations', 'Solitude psychologique', 'Renouveau personnel'],
     hooks: ['Célibataire et heureux', 'Confiance en amour', 'Reconstruire après rupture'],
-    keywords: ['relation amoureuse confiance', 'dépression solitude février', 'thérapie couple],
+    keywords: ['relation amoureuse confiance', 'dépression solitude février', 'thérapie couple'],
   },
   3: {
     topics: ['Printemps et optimisme', 'Énergie nouvelle', 'Sorties dépression'],
