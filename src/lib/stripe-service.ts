@@ -1,6 +1,16 @@
 import Stripe from 'stripe'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
+// Lazy initialization to avoid build-time crash when env var is missing
+let _stripe: Stripe | null = null
+function getStripe(): Stripe {
+  if (!_stripe) {
+    if (!process.env.STRIPE_SECRET_KEY) {
+      throw new Error('STRIPE_SECRET_KEY is not configured')
+    }
+    _stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
+  }
+  return _stripe
+}
 
 export interface CreateProductParams {
   name: string
@@ -50,7 +60,7 @@ export class StripeService {
   }> {
     try {
       // Create Stripe product
-      const product = await stripe.products.create({
+      const product = await getStripe().products.create({
         name: params.name,
         description: params.description,
         metadata: params.metadata || {},
@@ -71,7 +81,7 @@ export class StripeService {
         }
       }
 
-      const price = await stripe.prices.create(priceData)
+      const price = await getStripe().prices.create(priceData)
 
       return {
         productId: product.id,
@@ -88,7 +98,7 @@ export class StripeService {
     url: string
   }> {
     try {
-      const session = await stripe.checkout.sessions.create({
+      const session = await getStripe().checkout.sessions.create({
         payment_method_types: ['card'],
         line_items: [
           {
@@ -122,7 +132,7 @@ export class StripeService {
     try {
       const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!
 
-      const event = stripe.webhooks.constructEvent(payload, signature, webhookSecret)
+      const event = getStripe().webhooks.constructEvent(payload, signature, webhookSecret)
 
       return {
         type: event.type,
@@ -140,7 +150,7 @@ export class StripeService {
   }> {
     try {
       // Create Stripe Connect account
-      const account = await stripe.accounts.create({
+      const account = await getStripe().accounts.create({
         type: 'express',
         email: params.email,
         business_profile: {
@@ -151,7 +161,7 @@ export class StripeService {
       })
 
       // Create account link for onboarding
-      const accountLink = await stripe.accountLinks.create({
+      const accountLink = await getStripe().accountLinks.create({
         account: account.id,
         type: 'account_onboarding',
         refresh_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/settings?reauth=true`,
@@ -172,7 +182,7 @@ export class StripeService {
     transferId: string
   }> {
     try {
-      const transfer = await stripe.transfers.create({
+      const transfer = await getStripe().transfers.create({
         amount: Math.round(params.amount * 100), // Convert to cents
         currency: 'eur',
         destination: params.destinationAccountId,
@@ -194,7 +204,7 @@ export class StripeService {
 
   async getPaymentStatus(sessionId: string): Promise<PaymentStatus> {
     try {
-      const session = await stripe.checkout.sessions.retrieve(sessionId, {
+      const session = await getStripe().checkout.sessions.retrieve(sessionId, {
         expand: ['payment_intent'],
       })
 
@@ -222,7 +232,7 @@ export class StripeService {
     sessionId: string
   ): Promise<Record<string, unknown> | null> {
     try {
-      const session = await stripe.checkout.sessions.retrieve(sessionId)
+      const session = await getStripe().checkout.sessions.retrieve(sessionId)
       return session.metadata || null
     } catch (error) {
       console.error('Failed to get checkout session metadata:', error)
