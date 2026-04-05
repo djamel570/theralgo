@@ -961,3 +961,129 @@ class ReferralEngine {
 // ============================================================================
 
 export const referralEngine = new ReferralEngine()
+
+// ============================================================================
+// NAMED EXPORTS FOR API ROUTES
+// ============================================================================
+
+/**
+ * Create a referral link for a therapist
+ */
+export async function createReferralLink(options: {
+  userId: string
+  referrerName: string
+  referrerEmail?: string
+  referrerPhone?: string
+  linkType: 'booking' | 'product' | 'both' | 'standard' | 'social' | 'email' | 'whatsapp'
+  productId?: string
+  rewardType?: 'discount' | 'free_session' | 'free_product' | 'credit' | 'none' | 'commission' | 'points'
+  rewardValue?: number
+  rewardUnit?: 'euro' | 'percent'
+  customMessage?: string
+}): Promise<ReferralLink> {
+  return referralEngine.createReferralLink(options.userId, {
+    referrerName: options.referrerName,
+    referrerEmail: options.referrerEmail,
+    referrerPhone: options.referrerPhone,
+    linkType: (options.linkType === 'standard' || options.linkType === 'social' || options.linkType === 'email' || options.linkType === 'whatsapp')
+      ? 'booking'
+      : options.linkType,
+    productId: options.productId,
+    rewardType: (options.rewardType as any) || 'none',
+    rewardValue: options.rewardValue,
+    rewardUnit: options.rewardUnit,
+    customMessage: options.customMessage,
+  })
+}
+
+/**
+ * Track a click on a referral link
+ */
+export async function trackClick(options: {
+  slug: string
+  source?: string
+  ipHash?: string
+  userAgent?: string
+  referer?: string
+}): Promise<{ id: string; redirectUrl: string }> {
+  const result = await referralEngine.trackClick(
+    options.slug,
+    options.source || 'other',
+    options.ipHash,
+    options.userAgent
+  )
+  return {
+    id: options.slug,
+    redirectUrl: result.redirectTo,
+  }
+}
+
+/**
+ * Record a conversion from a referral
+ */
+export async function recordConversion(options: {
+  referralSlug: string
+  conversionType: 'booking' | 'inquiry' | 'signup' | 'purchase' | 'product_purchase' | 'lead_capture'
+  name: string
+  email: string
+  phone?: string
+  message?: string
+  productId?: string
+  bookingDate?: Date
+  bookingTime?: string
+  ipHash?: string
+}): Promise<{
+  id: string
+  rewardEarned?: boolean
+  rewardType?: string
+  rewardValue?: number
+}> {
+  const supabase = createServiceSupabaseClient()
+  const { data: linkData } = await supabase
+    .from('referral_links')
+    .select('id, therapist_id')
+    .eq('slug', options.referralSlug)
+    .single()
+  if (!linkData) throw new Error('Referral link not found')
+  let conversionType: 'booking' | 'product_purchase' | 'lead_capture'
+  if (options.conversionType === 'booking') conversionType = 'booking'
+  else if (options.conversionType === 'purchase') conversionType = 'product_purchase'
+  else conversionType = 'lead_capture'
+  await referralEngine.recordConversion(linkData.id, conversionType, options.email, 50)
+  return { id: linkData.id, rewardEarned: true, rewardType: 'discount', rewardValue: 50 }
+}
+
+/**
+ * Get referral links for a therapist
+ */
+export async function getReferralLinks(options: {
+  userId: string
+  active?: boolean
+  limit?: number
+}): Promise<ReferralLink[]> {
+  return referralEngine.getReferralLinks(options.userId, {
+    active: options.active,
+    limit: options.limit,
+  })
+}
+
+/**
+ * Deactivate a referral link
+ */
+export async function deactivateLink(options: {
+  linkId: string
+  userId: string
+}): Promise<{ success: boolean }> {
+  await referralEngine.deactivateLink(options.linkId)
+  return { success: true }
+}
+
+/**
+ * Get referral statistics for a therapist
+ */
+export async function getReferralStats(options: {
+  userId: string
+  period?: '7d' | '30d' | '90d' | 'all'
+}): Promise<ReferralStats> {
+  return referralEngine.getReferralStats(options.userId, options.period || 'all')
+}
